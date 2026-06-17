@@ -30,8 +30,8 @@ with st.sidebar:
     st.header("Settings")
     st.write("Add these in Streamlit Cloud secrets or your local `.streamlit/secrets.toml` file.")
 
-    notion_token = get_secret("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")
-    database_id = get_secret("382c3b0f81e580f9a7ffcf494286a49c?v=382c3b0f81e5803baee9000c0909baa8")
+    notion_token = get_secret("NOTION_TOKEN")
+    database_id = get_secret("NOTION_DATABASE_ID")
 
     if st.button("Refresh Notion Data", use_container_width=True):
         st.cache_data.clear()
