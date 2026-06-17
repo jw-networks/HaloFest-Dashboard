@@ -39,7 +39,7 @@ with st.sidebar:
 
     st.divider()
     st.caption("Required secrets:")
-    st.code("NOTION_TOKEN\nNOTION_DATABASE_ID", language="toml")
+    st.code('NOTION_TOKEN = "your_token"\nNOTION_DATABASE_ID = "your_database_or_data_source_id"', language="toml")
 
 if not notion_token or not database_id:
     st.warning("Missing Notion secrets. Add `NOTION_TOKEN` and `NOTION_DATABASE_ID` to continue.")
@@ -77,16 +77,16 @@ filter_cols = st.columns(3)
 with filter_cols[0]:
     if "Status" in df.columns:
         options = sorted([x for x in df["Status"].dropna().unique() if str(x).strip()])
-        selected = st.multiselect("Status", options)
-        if selected:
-            filtered = filtered[filtered["Status"].isin(selected)]
+        selected_status = st.multiselect("Status", options)
+        if selected_status:
+            filtered = filtered[filtered["Status"].isin(selected_status)]
 
 with filter_cols[1]:
     if "Regiment" in df.columns:
         options = sorted([x for x in df["Regiment"].dropna().unique() if str(x).strip()])
-        selected = st.multiselect("Regiment", options)
-        if selected:
-            filtered = filtered[filtered["Regiment"].isin(selected)]
+        selected_regiments = st.multiselect("Regiment", options)
+        if selected_regiments:
+            filtered = filtered[filtered["Regiment"].isin(selected_regiments)]
 
 with filter_cols[2]:
     search_text = st.text_input("Search")
