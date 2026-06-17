@@ -99,7 +99,7 @@ def fetch_database(token: str, database_id: str) -> pd.DataFrame:
     next_cursor: str | None = None
 
     while True:
-        kwargs: dict[str, Any] = {"database_id": database_id}
+        kwargs: dict[str, Any] = {"data_source_id": database_id}
         if next_cursor:
             kwargs["start_cursor"] = next_cursor
 
