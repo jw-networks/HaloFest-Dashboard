@@ -103,7 +103,7 @@ def fetch_database(token: str, database_id: str) -> pd.DataFrame:
         if next_cursor:
             kwargs["start_cursor"] = next_cursor
 
-        response = notion.databases.query(**kwargs)
+        response = notion.data_sources.query(**kwargs)
 
         for page in response.get("results", []):
             row: dict[str, Any] = {}
