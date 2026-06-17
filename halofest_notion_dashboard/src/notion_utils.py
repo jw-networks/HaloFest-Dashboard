@@ -11,7 +11,6 @@ def _plain_text(items: list[dict[str, Any]]) -> str:
 
 
 def notion_property_to_value(prop: dict[str, Any]) -> Any:
-    """Convert common Notion property types into spreadsheet-friendly values."""
     prop_type = prop.get("type")
 
     if prop_type == "title":
@@ -41,7 +40,7 @@ def notion_property_to_value(prop: dict[str, Any]) -> Any:
         return prop.get("url") or ""
 
     if prop_type == "checkbox":
-        return bool(prop.get("checkbox", False))
+        return "Yes" if prop.get("checkbox", False) else "No"
 
     if prop_type == "number":
         return prop.get("number")
@@ -93,13 +92,13 @@ def notion_property_to_value(prop: dict[str, Any]) -> Any:
 
 
 def fetch_database(token: str, database_id: str) -> pd.DataFrame:
-    """Fetch all rows from a Notion database using pagination."""
     notion = Client(auth=token)
     rows: list[dict[str, Any]] = []
     next_cursor: str | None = None
 
     while True:
         kwargs: dict[str, Any] = {"database_id": database_id}
+
         if next_cursor:
             kwargs["start_cursor"] = next_cursor
 
@@ -107,10 +106,13 @@ def fetch_database(token: str, database_id: str) -> pd.DataFrame:
 
         for page in response.get("results", []):
             row: dict[str, Any] = {}
+
             for name, prop in page.get("properties", {}).items():
                 row[name] = notion_property_to_value(prop)
+
             row["Notion Page ID"] = page.get("id", "")
             row["Notion URL"] = page.get("url", "")
+
             rows.append(row)
 
         if not response.get("has_more"):
