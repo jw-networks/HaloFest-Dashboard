@@ -183,13 +183,14 @@ if df.empty:
 
 filtered = df.copy()
 
-metric_cols = st.columns(6)
+metric_cols = st.columns(7)
 metric_cols[0].metric("Total", len(df))
 metric_cols[1].metric("Tickets", yes_count(df, COLUMN_MAP["ticket"]))
 metric_cols[2].metric("Handlers", yes_count(df, COLUMN_MAP["handler"]))
 metric_cols[3].metric("Cosplay", yes_count(df, COLUMN_MAP["cosplay"]))
 metric_cols[4].metric("Makers", yes_count(df, COLUMN_MAP["makers"]))
 metric_cols[5].metric("Forge", yes_count(df, COLUMN_MAP["forge"]))
+metric_cols[6].metric("Video", yes_count(df, COLUMN_MAP["videographer"]))
 
 st.divider()
 
@@ -205,7 +206,7 @@ if search_text:
     )
     filtered = filtered[mask]
 
-filter_cols = st.columns(5)
+filter_cols = st.columns(6)
 
 with filter_cols[0]:
     selected = st.selectbox("Ticket", ["All", "Yes", "No"])
@@ -222,7 +223,7 @@ with filter_cols[1]:
         ]
 
 with filter_cols[2]:
-    selected = st.selectbox("cosplay Contest", ["All", "Yes", "No"])
+    selected = st.selectbox("Cosplay Contest", ["All", "Yes", "No"])
     if selected != "All" and COLUMN_MAP["cosplay"] in filtered.columns:
         filtered = filtered[
             filtered[COLUMN_MAP["cosplay"]].apply(normalize_yes_no) == selected.lower()
@@ -240,6 +241,13 @@ with filter_cols[4]:
     if selected != "All" and COLUMN_MAP["forge"] in filtered.columns:
         filtered = filtered[
             filtered[COLUMN_MAP["forge"]].apply(normalize_yes_no) == selected.lower()
+        ]
+
+with filter_cols[5]:
+    selected = st.selectbox("Videographer Contest", ["All", "Yes", "No"])
+    if selected != "All" and COLUMN_MAP["videographer"] in filtered.columns:
+        filtered = filtered[
+            filtered[COLUMN_MAP["videographer"]].apply(normalize_yes_no) == selected.lower()
         ]
 
 st.divider()
@@ -308,7 +316,7 @@ for _, row in filtered.iterrows():
             st.markdown(
                 f"**Ticket:** {ticket} | "
                 f"**Handler:** {handler} | "
-                f"**cosplay:** {cosplay} | "
+                f"**Cosplay:** {cosplay} | "
                 f"**Makers:** {makers} | "
                 f"**Forge:** {forge} | "
                 f"**Video:** {video}"
