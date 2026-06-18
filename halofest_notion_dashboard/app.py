@@ -24,7 +24,7 @@ COLUMN_MAP = {
     "email": "Email",
     "ticket": "Purchased Ticket?",
     "handler": "Are you a Handler?",
-    "costume": "Are you Participating in the Costume Contest?",
+    "cosplay": "Are you Participating in the Cosplay Contest?",
     "makers": "Are you Participating in the Makers Contest?",
     "forge": "Are you Participating in the Forge Contest?",
     "videographer": "Are you Participating in the Videographer Contest?",
