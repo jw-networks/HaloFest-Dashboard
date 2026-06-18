@@ -44,6 +44,42 @@ def load_data(token: str, database_id: str) -> pd.DataFrame:
 def get_secret(name: str) -> str:
     return str(st.secrets.get(name, "")).strip()
 
+def require_password() -> None:
+    app_password = get_secret("APP_PASSWORD")
+
+    if not app_password:
+        st.error("Missing APP_PASSWORD secret.")
+        st.stop()
+
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+
+    if st.session_state.authenticated:
+        return
+
+    st.title("HaloFest Dashboard")
+
+    st.markdown(
+        """
+        Please enter the dashboard password to continue.
+        """
+    )
+
+    password = st.text_input(
+        "Password",
+        type="password",
+        key="password_input",
+    )
+
+    if st.button("Login", use_container_width=True):
+        if password == app_password:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Incorrect password.")
+
+    st.stop()
+
 
 def yes_count(df: pd.DataFrame, column: str) -> int:
     if column not in df.columns:
@@ -122,6 +158,8 @@ with st.sidebar:
         'NOTION_TOKEN = "your_token"\nNOTION_DATABASE_ID = "your_database_id"',
         language="toml",
     )
+    
+require_password()
 
 if not notion_token or not database_id:
     st.warning("Missing Notion secrets. Add `NOTION_TOKEN` and `NOTION_DATABASE_ID` to continue.")
