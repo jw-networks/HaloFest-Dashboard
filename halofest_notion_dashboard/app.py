@@ -15,6 +15,19 @@ st.set_page_config(
 st.title("🛡️ HaloFest Attendance Registration")
 st.header("Admin Dashboard")
 
+st.markdown(
+    """
+    <style>
+    .armor-card-img img {
+        width: 220px !important;
+        height: 220px !important;
+        object-fit: cover !important;
+        border-radius: 10px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 COLUMN_MAP = {
     "forum_name": "Forum Name",
@@ -267,7 +280,7 @@ st.divider()
 
 st.subheader(f"Registrations ({len(filtered)})")
 
-for _, row in filtered.iterrows():
+for index, row in filtered.iterrows():
     first = get_value(row, COLUMN_MAP["first_name"])
     last = get_value(row, COLUMN_MAP["last_name"])
     full_name = f"{first} {last}".strip() or "Unknown"
@@ -294,7 +307,12 @@ for _, row in filtered.iterrows():
 
         with img_col:
             if armor_photo_url:
-                st.image(armor_photo_url, use_container_width=True)
+                st.markdown('<div class="armor-card-img">', unsafe_allow_html=True)
+                st.image(armor_photo_url)
+                st.markdown("</div>", unsafe_allow_html=True)
+
+                with st.popover("View Armor Photo"):
+                    st.image(armor_photo_url, use_container_width=True)
             else:
                 st.caption("No armor photo")
 
@@ -326,9 +344,6 @@ for _, row in filtered.iterrows():
                 f"**Shirt Size:** {shirt} | "
                 f"**DIN:** {din}"
             )
-
-            if armor_photo_url:
-                st.caption(f"Armor Photo: {armor_photo_url.split('/')[-1]}")
 
             if notion_url:
                 st.link_button("Open in Notion", notion_url)
