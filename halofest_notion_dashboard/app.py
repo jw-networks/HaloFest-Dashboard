@@ -44,41 +44,10 @@ def load_data(token: str, database_id: str) -> pd.DataFrame:
 def get_secret(name: str) -> str:
     return str(st.secrets.get(name, "")).strip()
 
-def require_password() -> None:
-    app_password = get_secret("APP_PASSWORD")
 
-    if not app_password:
-        st.error("Missing APP_PASSWORD secret.")
-        st.stop()
-
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
-
-    if st.session_state.authenticated:
-        return
-
-    st.title("HaloFest Dashboard")
-
-    st.markdown(
-        """
-        Please enter the dashboard password to continue.
-        """
-    )
-
-    password = st.text_input(
-        "Password",
-        type="password",
-        key="password_input",
-    )
-
-    if st.button("Login", use_container_width=True):
-        if password == app_password:
-            st.session_state.authenticated = True
-            st.rerun()
-        else:
-            st.error("Incorrect password.")
-
-    st.stop()
+def normalize_yes_no(value: object) -> str:
+    text = str(value).strip().lower()
+    return text.rstrip(".!?,;:")
 
 
 def yes_count(df: pd.DataFrame, column: str) -> int:
@@ -87,8 +56,7 @@ def yes_count(df: pd.DataFrame, column: str) -> int:
 
     return int(
         df[column]
-        .astype(str)
-        .str.lower()
+        .apply(normalize_yes_no)
         .isin(["yes", "true", "1", "checked"])
         .sum()
     )
@@ -141,12 +109,49 @@ def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
     return dataframe[preferred + remaining]
 
 
+def require_password() -> None:
+    app_password = get_secret("APP_PASSWORD")
+
+    if not app_password:
+        st.error("Missing APP_PASSWORD secret.")
+        st.stop()
+
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+
+    if st.session_state.authenticated:
+        return
+
+    st.title("🔒 HaloFest Dashboard")
+    st.markdown("Please enter the dashboard password to continue.")
+
+    password = st.text_input(
+        "Password",
+        type="password",
+        key="password_input",
+    )
+
+    if st.button("Login", use_container_width=True):
+        if password == app_password:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Incorrect password.")
+
+    st.stop()
+
+
 with st.sidebar:
     st.header("Settings")
     st.write("Add these in Streamlit Cloud secrets or your local `.streamlit/secrets.toml` file.")
 
     notion_token = get_secret("NOTION_TOKEN")
     database_id = get_secret("NOTION_DATABASE_ID")
+
+    if st.session_state.get("authenticated", False):
+        if st.button("Logout", use_container_width=True):
+            st.session_state.authenticated = False
+            st.rerun()
 
     if st.button("Refresh Notion Data", use_container_width=True):
         st.cache_data.clear()
@@ -155,10 +160,10 @@ with st.sidebar:
     st.divider()
     st.caption("Required secrets:")
     st.code(
-        'NOTION_TOKEN = "your_token"\nNOTION_DATABASE_ID = "your_database_id"',
+        'NOTION_TOKEN = "your_token"\nNOTION_DATABASE_ID = "your_database_id"\nAPP_PASSWORD = "your_password"',
         language="toml",
     )
-    
+
 require_password()
 
 if not notion_token or not database_id:
@@ -200,34 +205,41 @@ if search_text:
     )
     filtered = filtered[mask]
 
-filter_cols = st.columns(4)
+filter_cols = st.columns(5)
 
 with filter_cols[0]:
     selected = st.selectbox("Ticket", ["All", "Yes", "No"])
-    if selected != "All":
+    if selected != "All" and COLUMN_MAP["ticket"] in filtered.columns:
         filtered = filtered[
-            filtered[COLUMN_MAP["ticket"]].astype(str).str.lower() == selected.lower()
+            filtered[COLUMN_MAP["ticket"]].apply(normalize_yes_no) == selected.lower()
         ]
 
 with filter_cols[1]:
     selected = st.selectbox("Handler", ["All", "Yes", "No"])
-    if selected != "All":
+    if selected != "All" and COLUMN_MAP["handler"] in filtered.columns:
         filtered = filtered[
-            filtered[COLUMN_MAP["handler"]].astype(str).str.lower() == selected.lower()
+            filtered[COLUMN_MAP["handler"]].apply(normalize_yes_no) == selected.lower()
         ]
 
 with filter_cols[2]:
     selected = st.selectbox("Costume Contest", ["All", "Yes", "No"])
-    if selected != "All":
+    if selected != "All" and COLUMN_MAP["costume"] in filtered.columns:
         filtered = filtered[
-            filtered[COLUMN_MAP["costume"]].astype(str).str.lower() == selected.lower()
+            filtered[COLUMN_MAP["costume"]].apply(normalize_yes_no) == selected.lower()
         ]
 
 with filter_cols[3]:
     selected = st.selectbox("Makers Contest", ["All", "Yes", "No"])
-    if selected != "All":
+    if selected != "All" and COLUMN_MAP["makers"] in filtered.columns:
         filtered = filtered[
-            filtered[COLUMN_MAP["makers"]].astype(str).str.lower() == selected.lower()
+            filtered[COLUMN_MAP["makers"]].apply(normalize_yes_no) == selected.lower()
+        ]
+
+with filter_cols[4]:
+    selected = st.selectbox("Forge Contest", ["All", "Yes", "No"])
+    if selected != "All" and COLUMN_MAP["forge"] in filtered.columns:
+        filtered = filtered[
+            filtered[COLUMN_MAP["forge"]].apply(normalize_yes_no) == selected.lower()
         ]
 
 st.divider()
