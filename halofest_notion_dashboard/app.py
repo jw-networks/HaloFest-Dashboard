@@ -88,7 +88,7 @@ def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
         COLUMN_MAP["email"],
         COLUMN_MAP["ticket"],
         COLUMN_MAP["handler"],
-        COLUMN_MAP["costume"],
+        COLUMN_MAP["cosplay"],
         COLUMN_MAP["makers"],
         COLUMN_MAP["forge"],
         COLUMN_MAP["videographer"],
@@ -187,7 +187,7 @@ metric_cols = st.columns(6)
 metric_cols[0].metric("Total", len(df))
 metric_cols[1].metric("Tickets", yes_count(df, COLUMN_MAP["ticket"]))
 metric_cols[2].metric("Handlers", yes_count(df, COLUMN_MAP["handler"]))
-metric_cols[3].metric("Costume", yes_count(df, COLUMN_MAP["costume"]))
+metric_cols[3].metric("Cosplay", yes_count(df, COLUMN_MAP["cosplay"]))
 metric_cols[4].metric("Makers", yes_count(df, COLUMN_MAP["makers"]))
 metric_cols[5].metric("Forge", yes_count(df, COLUMN_MAP["forge"]))
 
@@ -222,10 +222,10 @@ with filter_cols[1]:
         ]
 
 with filter_cols[2]:
-    selected = st.selectbox("Costume Contest", ["All", "Yes", "No"])
-    if selected != "All" and COLUMN_MAP["costume"] in filtered.columns:
+    selected = st.selectbox("cosplay Contest", ["All", "Yes", "No"])
+    if selected != "All" and COLUMN_MAP["cosplay"] in filtered.columns:
         filtered = filtered[
-            filtered[COLUMN_MAP["costume"]].apply(normalize_yes_no) == selected.lower()
+            filtered[COLUMN_MAP["cosplay"]].apply(normalize_yes_no) == selected.lower()
         ]
 
 with filter_cols[3]:
@@ -271,7 +271,7 @@ for _, row in filtered.iterrows():
 
     ticket = get_value(row, COLUMN_MAP["ticket"], "—")
     handler = get_value(row, COLUMN_MAP["handler"], "—")
-    costume = get_value(row, COLUMN_MAP["costume"], "—")
+    cosplay = get_value(row, COLUMN_MAP["cosplay"], "—")
     makers = get_value(row, COLUMN_MAP["makers"], "—")
     forge = get_value(row, COLUMN_MAP["forge"], "—")
     video = get_value(row, COLUMN_MAP["videographer"], "—")
@@ -308,7 +308,7 @@ for _, row in filtered.iterrows():
             st.markdown(
                 f"**Ticket:** {ticket} | "
                 f"**Handler:** {handler} | "
-                f"**Costume:** {costume} | "
+                f"**cosplay:** {cosplay} | "
                 f"**Makers:** {makers} | "
                 f"**Forge:** {forge} | "
                 f"**Video:** {video}"
